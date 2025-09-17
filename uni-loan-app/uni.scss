@@ -1,0 +1,48 @@
+/* 全局样式变量 */
+
+/* 品牌主色调 */
+$primary-color: #33B19E;
+$secondary-color: #FF7E00;
+
+/* 背景颜色 */
+$bg-color: #f7f7f7;
+$card-bg-color: #ffffff;
+
+/* 文字颜色 */
+$text-color: #333;
+$text-color-light: #666;
+$text-color-muted: #999;
+
+/* 边框和圆角 */
+$border-color: #eee;
+$light-gray: #f1f1f1;
+$border-radius: 20rpx;
+
+/* 渐变背景 */
+$gradient-primary: linear-gradient(135deg, #33B19E, #29A28E);
+$gradient-secondary: linear-gradient(to right, #FF7E00, #FF5500);
+
+/* 状态颜色 */
+$success-color: #33B19E;
+$warning-color: #FF7E00;
+$error-color: #FF5151;
+
+/* 阴影 */
+$shadow-regular: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+$shadow-large: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+
+/* 字体大小 */
+$font-size-mini: 24rpx;
+$font-size-small: 28rpx;
+$font-size-base: 32rpx;
+$font-size-medium: 36rpx;
+$font-size-large: 40rpx;
+$font-size-xlarge: 48rpx;
+$font-size-xxlarge: 72rpx;
+
+/* 间距 */
+$spacing-mini: 10rpx;
+$spacing-small: 20rpx;
+$spacing-base: 30rpx;
+$spacing-large: 40rpx;
+$spacing-xlarge: 60rpx;

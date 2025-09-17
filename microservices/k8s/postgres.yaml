@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: loan-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "loanapp"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: loan-secrets
+              key: postgres-password
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        - name: init-script
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+      - name: init-script
+        configMap:
+          name: postgres-init-script
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: loan-system
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: loan-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  namespace: loan-system
+data:
+  init-db.sql: |
+    -- 创建数据库
+    CREATE DATABASE user_service;
+    CREATE DATABASE loan_service;
+    CREATE DATABASE repayment_service;
+    CREATE DATABASE risk_service;
+    CREATE DATABASE notification_service;
+    CREATE DATABASE file_service;
+    
+    -- 创建用户
+    CREATE USER loan_user WITH PASSWORD 'loan_password';
+    
+    -- 授权
+    GRANT ALL PRIVILEGES ON DATABASE user_service TO loan_user;
+    GRANT ALL PRIVILEGES ON DATABASE loan_service TO loan_user;
+    GRANT ALL PRIVILEGES ON DATABASE repayment_service TO loan_user;
+    GRANT ALL PRIVILEGES ON DATABASE risk_service TO loan_user;
+    GRANT ALL PRIVILEGES ON DATABASE notification_service TO loan_user;
+    GRANT ALL PRIVILEGES ON DATABASE file_service TO loan_user;
+
+

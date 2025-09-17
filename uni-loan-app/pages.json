@@ -1,0 +1,168 @@
+{
+    "pages": [
+        {
+            "path": "pages/login/login",
+            "style": {
+                "navigationBarTitleText": "登录",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black",
+                "app-plus": {
+                    "titleNView": false
+                }
+            }
+        },
+        {
+            "path": "pages/index/index",
+            "style": {
+                "navigationBarTitleText": "首页",
+                "navigationBarBackgroundColor": "#33B19E",
+                "navigationBarTextStyle": "white",
+                "app-plus": {
+                    "titleNView": {
+                        "type": "transparent"
+                    }
+                }
+            }
+        },
+        {
+            "path": "pages/borrow/borrow",
+            "style": {
+                "navigationBarTitleText": "申请借款",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black"
+            }
+        },
+        {
+            "path": "pages/repay/repay",
+            "style": {
+                "navigationBarTitleText": "还款",
+                "navigationBarBackgroundColor": "#33B19E",
+                "navigationBarTextStyle": "white"
+            }
+        },
+        {
+            "path": "pages/my/my",
+            "style": {
+                "navigationBarTitleText": "个人中心",
+                "navigationBarBackgroundColor": "#33B19E",
+                "navigationBarTextStyle": "white",
+                "app-plus": {
+                    "titleNView": {
+                        "type": "transparent"
+                    }
+                }
+            }
+        },
+        {
+            "path": "pages/guide/guide",
+            "style": {
+                "navigationBarTitleText": "使用指南",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black"
+            }
+        },
+        {
+            "path": "pages/agreement/agreement",
+            "style": {
+                "navigationBarTitleText": "协议详情",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black"
+            }
+        },
+        {
+            "path": "pages/repay-history/repay-history",
+            "style": {
+                "navigationBarTitleText": "还款记录",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black",
+                "enablePullDownRefresh": true
+            }
+        },
+        {
+            "path": "pages/repay-success/repay-success",
+            "style": {
+                "navigationBarTitleText": "还款成功",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black"
+            }
+        },
+        {
+            "path": "pages/repay-confirm/repay-confirm",
+            "style": {
+                "navigationBarTitleText": "确认还款",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black"
+            }
+        },
+        {
+            "path": "pages/user-profile/user-profile",
+            "style": {
+                "navigationBarTitleText": "完善个人资料",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black"
+            }
+        },
+        {
+            "path": "pages/borrow/loan-records",
+            "style": {
+                "navigationBarTitleText": "借款记录",
+                "navigationBarBackgroundColor": "#FFFFFF",
+                "navigationBarTextStyle": "black",
+                "enablePullDownRefresh": true
+            }
+        },
+        {
+            "path": "pages/user-info/user-info",
+            "style": {
+                "navigationBarTitleText": "完善个人信息",
+                "navigationBarBackgroundColor": "#33B19E",
+                "navigationBarTextStyle": "white",
+                "app-plus": {
+                    "titleNView": false
+                }
+            }
+        }
+    ],
+    "globalStyle": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "极速贷",
+        "navigationBarBackgroundColor": "#F8F8F8",
+        "backgroundColor": "#F8F8F8"
+    },
+    "tabBar": {
+        "color": "#999999",
+        "selectedColor": "#33B19E",
+        "backgroundColor": "#ffffff",
+        "borderStyle": "white",
+        "height": "60px",
+        "fontSize": "10px",
+        "iconWidth": "24px",
+        "spacing": "3px",
+        "list": [
+            {
+                "pagePath": "pages/index/index",
+                "text": "首页",
+                "iconPath": "static/tabbar/home.png",
+                "selectedIconPath": "static/tabbar/home-active.png"
+            },
+            {
+                "pagePath": "pages/borrow/borrow",
+                "text": "借钱",
+                "iconPath": "static/tabbar/borrow.png",
+                "selectedIconPath": "static/tabbar/borrow-active.png"
+            },
+            {
+                "pagePath": "pages/repay/repay",
+                "text": "还款",
+                "iconPath": "static/tabbar/repay.png",
+                "selectedIconPath": "static/tabbar/repay-active.png"
+            },
+            {
+                "pagePath": "pages/my/my",
+                "text": "我的",
+                "iconPath": "static/tabbar/my.png",
+                "selectedIconPath": "static/tabbar/my-active.png"
+            }
+        ]
+    }
+}

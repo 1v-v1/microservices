@@ -1,0 +1,25 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wechatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#07C160;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00A85E;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="95" fill="url(#wechatGradient)"/>
+  <!-- 大微信气泡 -->
+  <ellipse cx="80" cy="85" rx="45" ry="35" fill="white"/>
+  <!-- 小微信气泡 -->
+  <ellipse cx="125" cy="115" rx="35" ry="28" fill="white"/>
+  
+  <!-- 大气泡的眼睛 -->
+  <circle cx="70" cy="78" r="4" fill="#07C160"/>
+  <circle cx="90" cy="78" r="4" fill="#07C160"/>
+  
+  <!-- 小气泡的眼睛 -->
+  <circle cx="118" cy="110" r="3" fill="#07C160"/>
+  <circle cx="132" cy="110" r="3" fill="#07C160"/>
+  
+  <!-- 装饰线条 -->
+  <path d="M50 85 Q45 90 50 95" stroke="white" stroke-width="2" fill="none" opacity="0.8"/>
+  <path d="M155 115 Q160 120 155 125" stroke="white" stroke-width="2" fill="none" opacity="0.8"/>
+</svg> 
