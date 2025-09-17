@@ -1,0 +1,315 @@
+version: '3.8'
+
+services:
+  # 数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: loan-postgres
+    environment:
+      POSTGRES_DB: loanapp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 051014ccx
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - loan-network
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: loan-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - loan-network
+
+  # RabbitMQ消息队列
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: loan-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - loan-network
+
+  # MinIO对象存储
+  minio:
+    image: minio/minio:latest
+    container_name: loan-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - loan-network
+
+  # 用户服务
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: loan-user-service
+    environment:
+      DATABASE_URL: postgresql+pg8000://postgres:051014ccx@postgres:5432/user_service
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # 贷款服务
+  loan-service:
+    build:
+      context: ./loan-service
+      dockerfile: Dockerfile
+    container_name: loan-loan-service
+    environment:
+      DATABASE_URL: postgresql+pg8000://postgres:051014ccx@postgres:5432/loan_service
+      REDIS_URL: redis://redis:6379/0
+      USER_SERVICE_URL: http://user-service:8001
+      RISK_SERVICE_URL: http://risk-service:8004
+      NOTIFICATION_SERVICE_URL: http://notification-service:8005
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+      - redis
+      - user-service
+      - risk-service
+      - notification-service
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # 还款服务
+  repayment-service:
+    build:
+      context: ./repayment-service
+      dockerfile: Dockerfile
+    container_name: loan-repayment-service
+    environment:
+      DATABASE_URL: postgresql+pg8000://postgres:051014ccx@postgres:5432/repayment_service
+      REDIS_URL: redis://redis:6379/0
+      LOAN_SERVICE_URL: http://loan-service:8002
+      NOTIFICATION_SERVICE_URL: http://notification-service:8005
+    ports:
+      - "8003:8003"
+    depends_on:
+      - postgres
+      - redis
+      - loan-service
+      - notification-service
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # 风控服务
+  risk-service:
+    build:
+      context: ./risk-service
+      dockerfile: Dockerfile
+    container_name: loan-risk-service
+    environment:
+      DATABASE_URL: postgresql+pg8000://postgres:051014ccx@postgres:5432/risk_service
+      REDIS_URL: redis://redis:6379/0
+      USER_SERVICE_URL: http://user-service:8001
+    ports:
+      - "8004:8004"
+    depends_on:
+      - postgres
+      - redis
+      - user-service
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # 通知服务
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: loan-notification-service
+    environment:
+      DATABASE_URL: postgresql+pg8000://postgres:051014ccx@postgres:5432/notification_service
+      REDIS_URL: redis://redis:6379/0
+      EMAIL_USERNAME: ${EMAIL_USERNAME:-}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD:-}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER:-}
+    ports:
+      - "8005:8005"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # 文件服务
+  file-service:
+    build:
+      context: ./file-service
+      dockerfile: Dockerfile
+    container_name: loan-file-service
+    environment:
+      DATABASE_URL: postgresql+pg8000://postgres:051014ccx@postgres:5432/file_service
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "8006:8006"
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # API网关
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: loan-api-gateway
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      USER_SERVICE_URL: http://user-service:8001
+      LOAN_SERVICE_URL: http://loan-service:8002
+      REPAYMENT_SERVICE_URL: http://repayment-service:8003
+      RISK_SERVICE_URL: http://risk-service:8004
+      NOTIFICATION_SERVICE_URL: http://notification-service:8005
+      FILE_SERVICE_URL: http://file-service:8006
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - user-service
+      - loan-service
+      - repayment-service
+      - risk-service
+      - notification-service
+      - file-service
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # Prometheus监控
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: loan-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # Grafana可视化
+  grafana:
+    image: grafana/grafana:latest
+    container_name: loan-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # ELK Stack - Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: loan-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # ELK Stack - Logstash
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: loan-logstash
+    volumes:
+      - ./monitoring/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+  # ELK Stack - Kibana
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: loan-kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - loan-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  elasticsearch_data:
+
+
+networks:
+  loan-network:
+    driver: bridge
+
+

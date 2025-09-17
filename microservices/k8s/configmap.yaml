@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loan-config
+  namespace: loan-system
+data:
+  # 数据库配置
+  DATABASE_URL: "postgresql+pg8000://postgres:051014ccx@postgres-service:5432"
+  REDIS_URL: "redis://redis-service:6379/0"
+  
+  # 服务配置
+  USER_SERVICE_URL: "http://user-service:8001"
+  LOAN_SERVICE_URL: "http://loan-service:8002"
+  REPAYMENT_SERVICE_URL: "http://repayment-service:8003"
+  RISK_SERVICE_URL: "http://risk-service:8004"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:8005"
+  FILE_SERVICE_URL: "http://file-service:8006"
+  
+  # 文件存储配置
+  MINIO_ENDPOINT: "minio-service:9000"
+  MINIO_ACCESS_KEY: "minioadmin"
+  MINIO_SECRET_KEY: "minioadmin"
+  
+  # JWT配置
+  SECRET_KEY: "your-secret-key-here"
+  ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+
+
